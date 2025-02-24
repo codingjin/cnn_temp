@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+project(cnn LANGUAGES CXX CUDA)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --ptxas-options=-v")
+add_executable(cnn-gpu cnn.assign.cu)
