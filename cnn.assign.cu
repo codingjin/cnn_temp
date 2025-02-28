@@ -23,8 +23,9 @@ int main(int argc, char *argv[]) {
     int v = atoi(argv[9]);
     int P = (H-R)/u + 1;
     int Q = (W-S)/v + 1;
-
+    printf("H=%d R=%d u=%d\n", H, R, u);
     printf("P=%d, Q=%d\n", P, Q);
+    printf("C=%d R=%d S=%d\n", C, R, S);
 
     float *output_seq = new float[N*K*P*Q];
     memset(output_seq,0, N * K * P * Q*sizeof(float));
@@ -103,9 +104,11 @@ int main(int argc, char *argv[]) {
 
     //@@ Launch the GPU Kernel here, you may want multiple implementations to compare
     //cnn0<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
-    //cnn1<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
-    cnn2<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
-    //cnn3<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
+    //cnn01<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
+    //cnn001<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
+    //cnn002<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
+    cnn003<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
+    //cnn004<<<griddim, blockdim>>>(N,C,K,H,W,R,S,u,v,P,Q,d_input,d_weight,d_output);
 
     cudaEventRecord(par_stop);
     cudaEventSynchronize(par_stop);
@@ -129,15 +132,17 @@ int main(int argc, char *argv[]) {
                     //printf("InININ!\n");
                     //printf("n=%d k=%d p=%d q=%d %f %f\n", n, k, p, q, output_seq[n*K*P*Q+k*P*Q+p*Q+q], output_par[n*K*P*Q+k*P*Q+p*Q+q]);
                     if(abs(output_seq[n*K*P*Q+k*P*Q+p*Q+q]-output_par[n*K*P*Q+k*P*Q+p*Q+q])> .001) {
-                        printf("n=%d k=%d p=%d q=%d %f %f\n", n, k, p, q, output_seq[n*K*P*Q+k*P*Q+p*Q+q], output_par[n*K*P*Q+k*P*Q+p*Q+q]);
+                        printf("No! n=%d k=%d p=%d q=%d ori=%f par=%f\n", n, k, p, q, output_seq[n*K*P*Q+k*P*Q+p*Q+q], output_par[n*K*P*Q+k*P*Q+p*Q+q]);
                         printf("Outputs do not match!!!\n");
                         exit(2);
+                    }else {
+                        printf("PASS! n=%d k=%d p=%d q=%d matches!\n", n, k, p, q);
                     }
                 }
             }
         }
     }
-
+    printf("PASS!\n");
     free(input);
     free(weight);
     free(output_seq);
